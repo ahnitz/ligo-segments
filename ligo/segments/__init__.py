@@ -41,7 +41,7 @@ See also:
 ligo.segments.utils
 """
 
-
+import sys
 from bisect import bisect_left
 from bisect import bisect_right
 from copy import copy as shallowcopy
@@ -156,11 +156,18 @@ class infinity(object):
 	def __ne__(self, other):
 		return self is not other
 
-	def __nonzero__(self):
-		"""
-		Returns True.
-		"""
-		return True
+	if sys.version_info.major < 3:
+		def __nonzero__(self):
+			"""
+			Returns True.
+			"""
+			return True
+	else:
+		def __bool__(self):
+			"""
+			Returns True.
+			"""
+			return True
 
 	# arithmetic
 
@@ -315,12 +322,20 @@ class segment(tuple):
 
 	# comparisons
 
-	def __nonzero__(self):
-		"""
-		Return True if the segment's boudaries are not equal, False
-		if they are equal.
-		"""
-		return self[0] != self[1]
+	if sys.version_info.major < 3:
+		def __nonzero__(self):
+			"""
+			Return True if the segment's boudaries are not equal, False
+			if they are equal.
+			"""
+			return self[0] != self[1]
+	else:
+		def __bool__(self):
+			"""
+			Return True if the segment's boudaries are not equal, False
+			if they are equal.
+			"""
+			return self[0] != self[1]
 
 	def disjoint(self, other):
 		"""
