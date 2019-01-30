@@ -11,6 +11,30 @@ import pkg_resources
 
 
 #
+# mock import statement to correctly load python implemention
+#
+
+
+try:
+    import builtins
+except ImportError:
+    import __builtin__ as builtins
+
+realimport = builtins.__import__
+
+
+def no_c_library(name, globals=None, locals=None, fromlist=(), level=0):
+    if name == '__segments':  # refuse to load C segments library
+        raise ImportError
+    return realimport(
+        name,
+        globals=globals,
+        locals=locals,
+        fromlist=fromlist,
+        level=level)
+
+
+#
 #  How many times to repeat the algebraic tests
 #
 
@@ -512,7 +536,12 @@ class test_segmentlistdict(unittest.TestCase):
 if __name__ == "__main__":
 	# first with the pure Python segments implementation
 
-	from ligo import segments
+	builtins.__import__ = no_c_library  # refuse to load C library
+	try:
+		from ligo import segments
+	finally:
+		# reinstate original import
+		builtins.__import__ = realimport
 	verifyutils.segments = segments
 
 	suite = unittest.TestSuite()
