@@ -1485,7 +1485,13 @@ static PySequenceMethods as_sequence = {
 static struct PyMethodDef methods[] = {
 	{"extent", extent, METH_NOARGS, "Return the segment whose end-points denote the maximum and minimum extent of the segmentlist.  Does not require the segmentlist to be coalesced."},
 	{"find", find, METH_O, "Return the smallest i such that i is the index of an element that wholly contains item.  Raises ValueError if no such element exists.  Does not require the segmentlist to be coalesced."},
-	{"value_slice_to_index", value_slice_to_index, METH_O, "Convert the slice s from a slice of values to a slice of indexes.  self must be coalesced, the operation is O(log n).  This is used to extract from a segmentlist the segments that span a given range of values, and is useful in reducing operation counts when many repeated operations are required within a limited range of values.\n\nExamples:\n\n" \
+	{"value_slice_to_index", value_slice_to_index, METH_O, "Convert the slice s from a slice of values to a slice of indexes.  self must be coalesced, the operation is O(log n).  This is used to extract from a segmentlist the segments that span a given range of values, and is useful in reducing operation counts when many repeated operations are required within a limited range of values.\n\nNOTE:  the definition of the transformation is important, and some care might be needed to use this tool properly.  The start and stop values of the slice are transformed independently.  The start value is mapped to the index of the first segment whose upper bound is greater than start, meaning the first segment spanning values greater than or equal to the value of start.  The stop value is mapped to 1 + the index of the last segment whose lower bound is less than stop, meaning the last segment spanning values less than the value of stop.  This can lead to unexpected behaviour if value slices whose upper and lower bounds are identical are transformed to index slices.  For example:\n\n" \
+">>> x = segmentlist([segment(-10, -5), segment(5, 10), segment(20, 30)])\n" \
+">>> x.value_slice_to_index(slice(5, 5))\n" \
+"slice(1, 1, None)\n" \
+">>> x.value_slice_to_index(slice(6, 6))\n" \
+"slice(1, 2, None)\n" \
+"Both value slices are zero-length, but one has yielded a zero-length (null) index slice, while the other has not.  The two value slices start at 5 and 6 respectively.  Both starting values lie within segment 1, and in both cases the start value has been mapped to index 1, as expected.  The first slice ends at 5, meaning it expresses the idea of a range of values upto but not including 5, which corresponds to segments upto *but not including* index 1, and so that stop value has been mapped to an index slice upper bound of 1.  The second slice ends at 6, and the range of values upto but not including 6 corresponds to segment indexes upto but not including 2, which is what we see that bound has been mapped to.\n\nExamples:\n\n" \
 ">>> x = segmentlist([segment(-10, -5), segment(5, 10), segment(20, 30)])\n" \
 ">>> x\n" \
 "[segment(-10, -5), segment(5, 10), segment(20, 30)]\n" \
@@ -1508,6 +1514,8 @@ static struct PyMethodDef methods[] = {
 ">>> x[x.value_slice_to_index(slice(10, 25))]\n" \
 "[segment(20, 30)]\n" \
 ">>> x[x.value_slice_to_index(slice(20, 20))]\n" \
+"[]\n" \
+">>> x[x.value_slice_to_index(slice(21, 21))]\n" \
 "[segment(20, 30)]\n" \
 ">>> x[x.value_slice_to_index(slice(-20, 8))]\n" \
 "[segment(-10, -5), segment(5, 10)]\n" \

@@ -594,6 +594,39 @@ class segmentlist(list):
 		in reducing operation counts when many repeated operations
 		are required within a limited range of values.
 
+		NOTE:  the definition of the transformation is important,
+		and some care might be needed to use this tool properly.
+		The start and stop values of the slice are transformed
+		independently.  The start value is mapped to the index of
+		the first segment whose upper bound is greater than start,
+		meaning the first segment spanning values greater than or
+		equal to the value of start.  The stop value is mapped to 1
+		+ the index of the last segment whose lower bound is less
+		than stop, meaning the last segment spanning values less
+		than the value of stop.  This can lead to unexpected
+		behaviour if value slices whose upper and lower bounds are
+		identical are transformed to index slices.  For example:
+
+		>>> x = segmentlist([segment(-10, -5), segment(5, 10), segment(20, 30)])
+		>>> x.value_slice_to_index(slice(5, 5))
+		slice(1, 1, None)
+		>>> x.value_slice_to_index(slice(6, 6))
+		slice(1, 2, None)
+
+		Both value slices are zero-length, but one has yielded a
+		zero-length (null) index slice, while the other has not.
+		The two value slices start at 5 and 6 respectively.  Both
+		starting values lie within segment 1, and in both cases the
+		start value has been mapped to index 1, as expected.  The
+		first slice ends at 5, meaning it expresses the idea of a
+		range of values upto but not including 5, which corresponds
+		to segments upto *but not including* index 1, and so that
+		stop value has been mapped to an index slice upper bound of
+		1.  The second slice ends at 6, and the range of values
+		upto but not including 6 corresponds to segment indexes
+		upto but not including 2, which is what we see that bound
+		has been mapped to.
+
 		Examples:
 
 		>>> x = segmentlist([segment(-10, -5), segment(5, 10), segment(20, 30)])
@@ -616,6 +649,8 @@ class segmentlist(list):
 		>>> x[x.value_slice_to_index(slice(10, 25))]
 		[segment(20, 30)]
 		>>> x[x.value_slice_to_index(slice(20, 20))]
+		[]
+		>>> x[x.value_slice_to_index(slice(21, 21))]
 		[segment(20, 30)]
 		>>> x[x.value_slice_to_index(slice(-20, 8))]
 		[segment(-10, -5), segment(5, 10)]
