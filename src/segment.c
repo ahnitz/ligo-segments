@@ -195,6 +195,7 @@ static PyObject *intersects(PyObject *self, PyObject *other)
 	return result;
 }
 
+
 static PyObject *connects(PyObject *self, PyObject *other)
 {
 	PyObject *sa = PyTuple_GET_ITEM(self, 0);
