@@ -19,6 +19,8 @@ try:
     import builtins
 except ImportError:
     import __builtin__ as builtins
+else:
+    from importlib import reload
 
 realimport = builtins.__import__
 
@@ -559,12 +561,12 @@ if __name__ == "__main__":
 
 	# then with C extension implementation
 
-	from ligo.segments import __segments
-	segments.infinity = __segments.infinity
-	segments.NegInfinity = __segments.NegInfinity
-	segments.PosInfinity = __segments.PosInfinity
-	segments.segment = __segments.segment
-	segments.segmentlist = __segments.segmentlist
+	reload(segments)  # loads C library and executes copyreg.pickle
+	segments.infinity = segments.infinity
+	segments.NegInfinity = segments.NegInfinity
+	segments.PosInfinity = segments.PosInfinity
+	segments.segment = segments.segment
+	segments.segmentlist = segments.segmentlist
 
 	suite = unittest.TestSuite()
 	suite.addTest(unittest.makeSuite(test_infinity))

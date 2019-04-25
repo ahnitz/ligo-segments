@@ -10,6 +10,7 @@ stages:
     - python -m pip install setuptools
   script:
     - python -m pip install .
+    - python -m pip install lalsuite  # for lal
     - make -C test
 
 test:2.7:
