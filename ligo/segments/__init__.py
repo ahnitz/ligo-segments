@@ -382,14 +382,16 @@ class segment(tuple):
 		return self[0] >= other
 
 	#
-	# From <https://docs.python.org/3/reference/datamodel.html#object.__hash__>:
+	# From
+	# <https://docs.python.org/3/reference/datamodel.html#object.__hash__>:
 	#
-	# "if [a class] defines __eq__() but not __hash__(), its instances will not
-	# be usable as items in hashable collections... If a class that overrides
-	# __eq__() needs to retain the implementation of __hash__() from a parent
-	# class, the interpreter must be told this explicitly by setting __hash__ =
-	# <ParentClass>.__hash__."
+	# "if [a class] defines __eq__() but not __hash__(), its instances
+	# will not be usable as items in hashable collections... If a class
+	# that overrides __eq__() needs to retain the implementation of
+	# __hash__() from a parent class, the interpreter must be told this
+	# explicitly by setting __hash__ = <ParentClass>.__hash__."
 	#
+
 	__hash__ = tuple.__hash__
 
 	# some arithmetic operations that (mostly) make sense for segments
