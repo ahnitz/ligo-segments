@@ -116,7 +116,11 @@ PyMODINIT_FUNC PyInit___segments(void)
 	Py_INCREF(&segments_Segment_Type);
 	PyModule_AddObject(module, "segment", (PyObject *) &segments_Segment_Type);
 	/* uninherit tp_print from tuple class */
+#if PY_VERSION_HEX < 0x03090000
+	/* FIXME: tp_print was removed in Python 3.9.
+	 * Remove this once Python 3.8 reaches end of life. */
 	segments_Segment_Type.tp_print = NULL;
+#endif
 
 	/*
 	 * Create segmentlist class
