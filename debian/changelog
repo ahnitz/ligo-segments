@@ -2,9 +2,10 @@ ligo-segments (1.3.0-1) stable; urgency=low
 
   * unit tests now automatically switch between python and C
     implementations (previously required manual hack)
-  * more updates for Python 3
+  * more updates for Python 3 (various versions)
+  * expand documentation (and, with it, test coverage)
 
- -- Kipp Cannon <kipp.cannon@ligo.org>  ???, ?? ??? ???? ??:??:?? +0900
+ -- Kipp Cannon <kipp.cannon@ligo.org>  Wed, 06 Jan 2021 15:35:00 +0900
 
 ligo-segments (1.2.0-1) stable; urgency=low
 
