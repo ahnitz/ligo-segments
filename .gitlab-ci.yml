@@ -37,7 +37,7 @@ doc:
   stage: test
   image: python
   before_script:
-    - python -m pip install sphinx
+    - python -m pip install sphinx six
   script:
     - python setup.py build_sphinx -W
   artifacts:
