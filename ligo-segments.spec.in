@@ -39,7 +39,6 @@ infinity object used to define semi-infinite and infinite segments.
 %package -n python%{python3_pkgversion}-%{srcname}
 Summary:  %{summary}
 Requires: python%{python3_pkgversion}-six
-Requires: python%{python3_pkgversion}-ligo-common
 # not supported by old rpmbuild
 #Recommends: python3-lal
 

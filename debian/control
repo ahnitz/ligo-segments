@@ -34,7 +34,6 @@ Description: Representations of semi-open intervals - Python package
 Package: python3-ligo-segments
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, ${python3:Depends},
- python3-ligo-common,
  python3-six
 Recommends:
  lal-python3
