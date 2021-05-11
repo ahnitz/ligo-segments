@@ -137,7 +137,9 @@ def fromsegwizard(fileobj, coltype = int, strict = True):
 	format = None
 	l = segments.segmentlist()
 	for line in fileobj:
-		line = commentpat.split(line)[0]
+		# if part of the line is a comment, delete that part.  if
+		# nothing remains, move on
+		line = commentpat.sub("", line)
 		if not line:
 			continue
 		try:
