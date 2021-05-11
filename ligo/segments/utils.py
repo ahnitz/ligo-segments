@@ -90,7 +90,7 @@ def fromfilenames(filenames, coltype = int):
 def fromlalcache(cachefile, coltype = int):
 	"""
 	Construct a segmentlist representing the times spanned by the files
-	identified in the LAL cache contained in the file object file.  The
+	named in the LAL cache contained in the file object cachefile.  The
 	segmentlist will be created with segments whose boundaries are of
 	type coltype, which should raise ValueError if it cannot convert
 	its string argument.
@@ -112,9 +112,9 @@ def fromlalcache(cachefile, coltype = int):
 #
 
 
-def fromsegwizard(file, coltype = int, strict = True):
+def fromsegwizard(fileobj, coltype = int, strict = True):
 	"""
-	Read a segmentlist from the file object file containing a segwizard
+	Read a segmentlist from the file object fileobj containing a segwizard
 	compatible segment list.  Parsing stops on the first line that
 	cannot be parsed (which is consumed).  The segmentlist will be
 	created with segment whose boundaries are of type coltype, which
@@ -136,7 +136,7 @@ def fromsegwizard(file, coltype = int, strict = True):
 	fourcolsegpat = re.compile(r"\A\s*([\d]+)\s+([\d.+-eE]+)\s+([\d.+-eE]+)\s+([\d.+-eE]+)\s*\Z")
 	format = None
 	l = segments.segmentlist()
-	for line in file:
+	for line in fileobj:
 		line = commentpat.split(line)[0]
 		if not line:
 			continue
@@ -171,18 +171,18 @@ def fromsegwizard(file, coltype = int, strict = True):
 	return l
 
 
-def tosegwizard(file, seglist, header = True, coltype = int):
+def tosegwizard(fileobj, seglist, header = True, coltype = int):
 	"""
-	Write the segmentlist seglist to the file object file in a
+	Write the segmentlist seglist to the file object fileobj in a
 	segwizard compatible format.  If header is True, then the output
 	will begin with a comment line containing column names.  The
 	segment boundaries will be coerced to type coltype and then passed
 	to str() before output.
 	"""
 	if header:
-		file.write("# seg\tstart    \tstop     \tduration\n")
+		fileobj.write("# seg\tstart    \tstop     \tduration\n")
 	for n, seg in enumerate(seglist):
-		file.write("%d\t%s\t%s\t%s\n" % (n, str(coltype(seg[0])), str(coltype(seg[1])), str(coltype(abs(seg)))))
+		fileobj.write("%d\t%s\t%s\t%s\n" % (n, str(coltype(seg[0])), str(coltype(seg[1])), str(coltype(abs(seg)))))
 
 
 #
@@ -190,9 +190,9 @@ def tosegwizard(file, seglist, header = True, coltype = int):
 #
 
 
-def fromtama(file, coltype = LIGOTimeGPS):
+def fromtama(fileobj, coltype = LIGOTimeGPS):
 	"""
-	Read a segmentlist from the file object file containing TAMA
+	Read a segmentlist from the file object fileobj containing TAMA
 	locked-segments data.  Parsing stops on the first line that cannot
 	be parsed (which is consumed).  The segmentlist will be created
 	with segments whose boundaries are of type coltype, which should
@@ -208,7 +208,7 @@ def fromtama(file, coltype = LIGOTimeGPS):
 	"""
 	segmentpat = re.compile(r"\A\s*\S+\s+\S+\s+\S+\s+([\d.+-eE]+)\s+([\d.+-eE]+)")
 	l = segments.segmentlist()
-	for line in file:
+	for line in fileobj:
 		try:
 			[tokens] = segmentpat.findall(line)
 			l.append(segments.segment(list(map(coltype, tokens[0:2]))))
