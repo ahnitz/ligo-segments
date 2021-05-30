@@ -78,20 +78,35 @@ class infinity(object):
 	This class uses comparison-by-identity rather than
 	comparison-by-value.  What this means, is there are only ever two
 	instances of this class, representing positive and negative
-	infinity respectively.  All other "instances" of this class are
-	infact simply references to one of these two, and comparisons are
-	done by checking which one you've got.  This improves speed and
-	reduces memory use, and is similar in implementation to Python's
-	boolean True and False objects.
+	infinity respectively.  All other "instances" of this class are in
+	fact references to one of these two, and comparisons are done by
+	checking which one you've got.  This improves speed and reduces
+	memory use, and is similar in implementation to Python's boolean
+	True and False objects.
 
 	The normal way to obtain references to positive or negative
-	infinity is to do infinity() or -infinity() respectively.  It is
-	also possible to select the sign by passing a single numeric
-	argument to the constructor.  The sign of the argument causes a
-	reference to either positive or negative infinity to be returned,
-	respectively.  For example infinity(-1) is equivalent to
-	-infinity().  However, this feature is a little slower and not
-	recommended for normal use;  it is provided only to simplify the
+	infinity is
+
+	>>> infinity()
+	infinity
+
+	or
+
+	>>> -infinity()
+	-infinity
+
+	respectively.  It is also possible to select the sign by passing a
+	single numeric argument to the constructor.  The sign of the
+	argument causes a reference to either positive or negative infinity
+	to be returned, respectively.  For example
+
+	>>> infinity(-1)
+	-infinity
+	>>> -infinity()
+	-infinity
+
+	are equivalent.  However, this feature is a little slower and not
+	recommended for normal use.  It is provided only to simplify the
 	pickling and unpickling of instances of the class.
 
 	Example:
@@ -233,23 +248,23 @@ class segment(tuple):
 	A segment has a start and an end, and is taken to represent the
 	range of values in the semi-open interval [start, end).  Some
 	limited arithmetic operations are possible with segments, but
-	because the set of (single) segments is not closed under the
-	sensible definitions of the standard arithmetic operations, the
-	behaviour of the arithmetic operators on segments may not be as you
-	would expect.  For general arithmetic on segments, use segmentlist
+	because the set of (single) segments is not closed under sensible
+	definitions of the standard arithmetic operations, the behaviour of
+	the arithmetic operators on segments might not be as you would
+	expect.  For general arithmetic on segments, use segmentlist
 	objects.  The methods for this class exist mostly for purpose of
 	simplifying the implementation of the segmentlist class.
 
 	The segment class is a subclass of the tuple built-in class
-	provided by Python.  This means segments are immutable --- you
-	cannot modify a segment object after creating it, to change the
-	boundaries of a segment you must create a new segment object with
-	the desired boundaries.  Like tuples, segments can be used as
-	dictionary keys, and like tuples the comparison used to find a
-	segment in the dictionary is done by value not by ID.  And, like
-	tuples, a segment can be created from any sequence-like object by
-	passing it to the constructor (the sequence must have exactly two
-	elements in it).
+	provided by Python.  This means segments are immutable:  you cannot
+	modify a segment object after creating it, to change the boundaries
+	of a segment you must create a new segment object with the desired
+	boundaries.  Like tuples, segments can be used as dictionary keys,
+	and like tuples the comparison used to find a segment in the
+	dictionary is done by value not by ID.  And, like tuples, a segment
+	can be created from any sequence-like object by passing it to the
+	constructor, however the sequence must have exactly two elements in
+	it.
 
 	Example:
 
@@ -455,12 +470,22 @@ class segment(tuple):
 	def __contains__(self, other):
 		"""
 		Return True if other is wholly contained in self.  If other
-		is an instance of the segment class or an instance of a
-		subclass of segment then it is treated as an interval whose
-		upper and lower bounds must not be outside of self,
+		can be unpacked as a 2-element sequence (for example, it is
+		an instance of the segment class or an instance of a
+		subclass of segment) then it is treated as an interval
+		whose upper and lower bounds must not be outside of self,
 		otherwise other is compared to the bounds of self as a
-		scalar.
+		scalar (whether it is a scalar or not).
 		"""
+		# benchmarks have shown that this method is overwhelmingly
+		# used in tests involving pairs of segment objects rather
+		# than in tests of scalars and segment objects, so the
+		# scalar case is implemented as an exception handler.
+		# exception handling is extraordinarily slower than a
+		# conditional statement, but only if the exception is
+		# raised.  if the exception is not raised this approach is
+		# much faster than paying the price of the conditional
+		# expression, unconditionally (so to speak).
 		try:
 			a, b = other
 		except (ValueError, TypeError):
@@ -519,17 +544,19 @@ class segmentlist(list):
 	"coalesced" state --- consisting solely of disjoint segments listed
 	in ascending order.  Using the standard Python sequence-like
 	operations, a segmentlist can be easily constructed that is not in
-	this state;  for example by simply appending a segment to the end
-	of the list that overlaps some other segment already in the list.
-	The use of methods that require coalesced lists with lists that are
-	not coalesced has undefined results.  The class provides the
-	.coalesce() method that can be called to put a segmentlist in the
-	coalesced state.  All arithmetic methods return coalesced results,
-	so typically the .coalesce() method will be executed once after
-	importing a segmentlist from an untrusted source, then there is
-	never a need to call the .coalesce() method again as long as the
-	segmentlists are manipulated exclusively via the arithmetic
-	operators.
+	this state, for example by simply appending a segment to the end of
+	the list that overlaps some other segment already in the list.  The
+	use of methods that require coalesced lists with lists that are not
+	coalesced has undefined results.  For performance reasons, safety
+	checks for coalescedness are not included in any moethods, however
+	the class provides the .coalesce() method that transforms a
+	segmentlist into the coalesced state in-place and can be used to
+	sanitize segmentlist objects whose state is not known.  All
+	arithmetic methods return coalesced results, so typically the
+	.coalesce() method will be executed once after importing a
+	segmentlist from an untrusted source, then there is never a need to
+	call the .coalesce() method again as long as the segmentlists are
+	manipulated exclusively via the arithmetic operators.
 
 	Example:
 
@@ -557,8 +584,8 @@ class segmentlist(list):
 		case of standard sequence-like objects the in operator
 		checks for an exact match between the given item and one of
 		the contents of the list; for segmentlists, the in operator
-		checks if the given item is contained within any of the
-		segments in the segmentlist.
+		checks if the given item is or sequence of items are
+		contained within any of the segments in the segmentlist.
 		"""
 		if isinstance(item, self.__class__):
 			return all(seg in self for seg in item)
@@ -853,7 +880,7 @@ class segmentlist(list):
 		# if either has zero length, the answer is False.  we know
 		# our bool() tests our length, but we use len() on other
 		# explicitly to avoid allowing arithmetic to succeed on
-		# objects simply because their boolean falue is false
+		# objects simply because their boolean value is false
 		if not (self and len(other)):
 			return False
 		# walk through both lists in order, searching for a match
