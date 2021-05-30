@@ -313,7 +313,7 @@ class segment(tuple):
 		if len(args) == 1:
 			args = args[0]
 		if len(args) != 2:
-			raise TypeError("__new__() takes 2 arguments, or 1 argument when it is a sequence of length 2")
+			raise TypeError("__new__() requires 2 arguments, or 1 argument when it is a sequence of length 2")
 		if args[0] <= args[1]:
 			return tuple.__new__(cls, args)
 		else:
