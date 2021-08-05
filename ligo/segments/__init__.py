@@ -314,10 +314,7 @@ class segment(tuple):
 			args = args[0]
 		if len(args) != 2:
 			raise TypeError("__new__() requires 2 arguments, or 1 argument when it is a sequence of length 2")
-		if args[0] <= args[1]:
-			return tuple.__new__(cls, args)
-		else:
-			return tuple.__new__(cls, (args[1], args[0]))
+		return tuple.__new__(cls, args) if args[0] <= args[1] else tuple.__new__(cls, (args[1], args[0]))
 
 	def __repr__(self):
 		return "segment(%s, %s)" % (repr(self[0]), repr(self[1]))
@@ -360,41 +357,25 @@ class segment(tuple):
 		A return value of 0 indicates the two segments would
 		coalesce.
 		"""
-		if self[0] > other[1]:
-			return 1
-		if self[1] < other[0]:
-			return -1
-		return 0
+		return 1 if self[0] > other[1] else -1 if self[1] < other[0] else 0
 
 	def __lt__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__lt__(self, other)
-		return self[0] < other
+		return tuple.__lt__(self, other) if isinstance(other, tuple) else self[0] < other
 
 	def __le__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__le__(self, other)
-		return self[0] <= other
+		return tuple.__le__(self, other) if isinstance(other, tuple) else self[0] <= other
 
 	def __eq__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__eq__(self, other)
-		return self[0] == other
+		return tuple.__eq__(self, other) if isinstance(other, tuple) else self[0] == other
 
 	def __ne__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__ne__(self, other)
-		return self[0] != other
+		return tuple.__ne__(self, other) if isinstance(other, tuple) else self[0] != other
 
 	def __gt__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__gt__(self, other)
-		return self[0] > other
+		return tuple.__gt__(self, other) if isinstance(other, tuple) else self[0] > other
 
 	def __ge__(self, other):
-		if isinstance(other, tuple):
-			return tuple.__ge__(self, other)
-		return self[0] >= other
+		return tuple.__ge__(self, other) if isinstance(other, tuple) else self[0] >= other
 
 	#
 	# From
@@ -445,12 +426,13 @@ class segment(tuple):
 		if (self[1] <= other[0]) or (self[0] >= other[1]):
 			# self and other do not intersect
 			return self
-		if (self in other) or ((self[0] < other[0]) and (self[1] > other[1])):
+		elif (self in other) or ((self[0] < other[0]) and (self[1] > other[1])):
 			# result is not exactly 1 segment
 			raise ValueError(other)
-		if self[0] < other[0]:
+		elif self[0] < other[0]:
 			return tuple.__new__(self.__class__, (self[0], other[0]))
-		return tuple.__new__(self.__class__, (other[1], self[1]))
+		else:
+			return tuple.__new__(self.__class__, (other[1], self[1]))
 
 	# check for proper intersection and subsetness
 
