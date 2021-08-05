@@ -1341,16 +1341,21 @@ class segmentlistdict(dict):
 			value.protract(x)
 		return self
 
-	def extract_common(self, keys):
+	def extract_common(self, keys, n = None):
 		"""
 		Return a new segmentlistdict containing only those
 		segmentlists associated with the keys in keys, with each
 		set to their mutual intersection.  The offsets are
-		preserved.
+		preserved.  If n is not None then instead of their mutual
+		intersection, compute the intervals in which n or more of
+		the segmentlists named in keys intersect.  n = len(keys) is
+		equivalent to n = None.  If keys contains repeated entries,
+		those segmentlists are still only considered once for the
+		purpose of counting n.
 		"""
 		keys = set(keys)
 		new = self.__class__()
-		intersection = self.intersection(keys)
+		intersection = self.vote(keys, len(keys) if n is None else n)
 		for key in keys:
 			dict.__setitem__(new, key, shallowcopy(intersection))
 			dict.__setitem__(new.offsets, key, self.offsets[key])
@@ -1385,18 +1390,27 @@ class segmentlistdict(dict):
 			self, other = other, self
 		return any(a.intersects(b) for a in self for b in other)
 
+	def vote(self, keys, n):
+		"""
+		Return the intervals when n or more of the segment lists
+		identified by keys are on.  Each segment list casts as many
+		votes as the number of times it appears in keys.
+
+		See also .intersection().
+		"""
+		from .utils import vote
+		return vote([self[key] for key in keys], n)
+
 	def intersection(self, keys):
 		"""
 		Return the intersection of the segmentlists associated with
 		the keys in keys.
+
+		See also .vote().  This method is equivalent to .vote(keys,
+		len(keys)) with keys uniquified.
 		"""
 		keys = set(keys)
-		if not keys:
-			return segmentlist()
-		seglist = shallowcopy(self[keys.pop()])
-		for key in keys:
-			seglist &= self[key]
-		return seglist
+		return self.vote(keys, len(keys))
 
 	def union(self, keys):
 		"""
