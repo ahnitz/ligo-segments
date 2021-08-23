@@ -17,7 +17,7 @@
 
 import os.path
 import re
-from setuptools import setup, Extension
+from distutils.core import setup, Extension
 import sys
 
 
