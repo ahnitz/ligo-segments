@@ -72,7 +72,7 @@ def setup_static_content(app):
 
         # add stylesheets
         for cssf in glob.glob(os.path.join(staticdir, 'css', '*.css')):
-            app.add_stylesheet(cssf[len(staticdir)+1:])
+            app.add_css_file(cssf[len(staticdir)+1:])
 
         # add custom javascript
         for jsf in glob.glob(os.path.join(staticdir, 'js', '*.js')):
