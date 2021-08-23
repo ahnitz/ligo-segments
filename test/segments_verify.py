@@ -504,8 +504,14 @@ class test_segmentlist(unittest.TestCase):
 					raise AssertionError("%s did not raise TypeError" % expr)
 		self.assertEqual(eval("%s | %s" % (w, y)), segments.segmentlist([segments.segment(0, 30)]))
 
-
 class test_segmentlistdict(unittest.TestCase):
+	@staticmethod
+	def random_coalesced_segmentlistdict(n):
+		seglists = segments.segmentlistdict()
+		for key in map(chr, range(65, 65 + n)):
+			seglists[key] = verifyutils.random_coalesced_list(random.randint(1, algebra_listlength))
+		return seglists
+
 	def testextent_all(self):
 		a = segments.segmentlistdict({"H1": segments.segmentlist(), "L1": segments.segmentlist([segments.segment(25, 35)])})
 		self.assertEqual(a.extent_all(), segments.segment(25, 35))
@@ -536,6 +542,15 @@ class test_segmentlistdict(unittest.TestCase):
 		self.assertEqual(a, pickle.loads(pickle.dumps(a, protocol = 0)))
 		self.assertEqual(a, pickle.loads(pickle.dumps(a, protocol = 1)))
 		self.assertEqual(a, pickle.loads(pickle.dumps(a, protocol = 2)))
+
+	def testvote(self):
+		seglists = self.random_coalesced_segmentlistdict(15)
+		seglists.vote(seglists, 6)
+
+	def testintersection(self):
+		seglists = self.random_coalesced_segmentlistdict(15)
+		keys = ("A", "B", "C", "D")
+		seglists.intersection(keys)
 
 
 #
