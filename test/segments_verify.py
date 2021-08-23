@@ -106,9 +106,13 @@ class test_infinity(unittest.TestCase):
 		self.assertGreater(a, 0)
 		self.assertEqual(a, a)
 
-	@unittest.skipIf(sys.version_info.major >= 3,
-		'Python 3 does not have cmp')
 	def test__cmp__(self):
+		try:
+			cmp()
+		except NameError:
+			# Python 3 does not have cmp() builtin
+			def cmp(a, b):
+				return (a > b) - (a < b)
 		a = segments.infinity()
 		self.assertEqual( 0, cmp(-a, -a))
 		self.assertEqual(-1, cmp(-a,  0))
