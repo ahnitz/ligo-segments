@@ -568,7 +568,7 @@ if __name__ == "__main__":
 		# reinstate original import
 		builtins.__import__ = realimport
 
-	print("testing segments module located at %s" % segments.__file__)
+	print("testing segments module %r" % segments.segment.__module__)
 	verifyutils.segments = segments
 
 	suite = unittest.TestSuite()
@@ -586,8 +586,8 @@ if __name__ == "__main__":
 
 	# then with C extension implementation
 
-	reload(segments)  # loads C library and executes copyreg.pickle
-	print("testing segments module located at %s" % segments.__file__)
+	reload(segments)  # loads C library and re-executes copyreg.pickle
+	print("testing segments module %r" % segments.segment.__module__)
 
 	segments.infinity = segments.infinity
 	segments.NegInfinity = segments.NegInfinity
