@@ -5,6 +5,10 @@ export PYBUILD_NAME := ligo-segments
 %:
 	dh $@ --with python2,python3 --buildsystem=pybuild
 
+override_dh_auto_install:
+       find $(CURDIR) -path '*/ligo/__init__.py' | xargs -rt rm
+       dh_auto_install
+
 # do not run tests at all.
 override_dh_auto_test:
 	true
